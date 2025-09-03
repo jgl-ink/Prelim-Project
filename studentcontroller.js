@@ -26,20 +26,33 @@ class StudentController {
   }
 
   handleRegister = (data) => {
-    try {
-      this.model.addStudent(data);
-      this.view.showMessage("regFeedback", "Registration successful!", "success");
-    } catch (err) {
-      this.view.showMessage("regFeedback", err.message, "error");
-    }
-  };
+  try {
+    this.model.addStudent(data);
+    this.view.showMessage(
+      "regFeedback",
+      `Account created for ${data.name}!<br>
+       Email: ${data.email}<br>
+       Course: ${data.course}, Year: ${data.year}, Level: ${data.level}`,
+      "success"
+    );
+  } catch (err) {
+    this.view.showMessage("regFeedback", err.message, "error");
+  }
+};
+
+
 
   handleLogin = (data) => {
-    try {
-      const student = this.model.login(data.username, data.password);
-      this.view.showMessage("loginFeedback", `Welcome, ${student.name}!`, "success");
-    } catch (err) {
-      this.view.showMessage("loginFeedback", err.message, "error");
-    }
-  };
+  try {
+    const student = this.model.login(data.username, data.password);
+    this.view.showMessage(
+      "loginFeedback",
+      `Welcome back, ${student.name}!<br>
+       Course: ${student.course}, Year: ${student.year}, Level: ${student.level}`,
+      "success"
+    );
+  } catch (err) {
+    this.view.showMessage("loginFeedback", err.message, "error");
+  }
+};
 }

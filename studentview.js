@@ -10,18 +10,116 @@ class StudentView {
   showHome() {
     this.clear();
     this.app.innerHTML = `
-      <h1>Welcome to Summit University</h1>
-      <h2>Vision</h2>
-      <p>“To elevate minds and inspire innovation that transforms societies and shapes a sustainable future.”</p>
-      <h2>Mission</h2>
-      <ul>
-        <li>Empower students with knowledge that bridges disciplines and cultures.</li>
-        <li>Foster creativity, collaboration, and ethical leadership in every field.</li>
-        <li>Transform learning into action through research, innovation, and community partnerships.</li>
-      </ul>
-      <p>Summit University is a global center for innovation, creativity, and leadership. With flexible programs that blend technology, arts, sciences, and social impact, Summit challenges students to rise beyond limits.</p>
+      <!-- Facilities carousel -->
+    <section aria-label="Facilities carousel" class="carousel" id="facilities-carousel">
+      <div class="slides" aria-live="polite">
+        <div class="slide">
+          <img src="images/facility1.jpg" alt="Main Library - study areas and stacks" />
+          <div class="caption">Main Library — quiet study & research collections</div>
+        </div>
+        <div class="slide">
+          <img src="images/facility2.jpg" alt="Modern lecture hall with AV equipment" />
+          <div class="caption">Lecture Halls — modern AV-enabled classrooms</div>
+        </div>
+        <div class="slide">
+          <img src="images/facility3.jpg" alt="Campus sports center and gym" />
+          <div class="caption">Sports Center — fitness & recreation facilities</div>
+        </div>
+        <div class="slide">
+          <img src="images/facility4.jpg" alt="Student commons and cafeteria" />
+          <div class="caption">Student Commons — dining & collaborative spaces</div>
+        </div>
+        <div class="slide">
+          <img src="images/facility5.jpg" alt="Science labs and research spaces" />
+          <div class="caption">Research Labs — labs and maker spaces</div>
+        </div>
+      </div>
+
+      <div class="controls" aria-hidden="false">
+        <button id="prev" aria-label="Previous slide">&#9664;</button>
+        <button id="next" aria-label="Next slide">&#9654;</button>
+      </div>
+
+      <div class="indicators" id="indicators" aria-hidden="false">
+        <button data-slide="0" aria-label="Go to slide 1" class="active"></button>
+        <button data-slide="1" aria-label="Go to slide 2"></button>
+        <button data-slide="2" aria-label="Go to slide 3"></button>
+        <button data-slide="3" aria-label="Go to slide 4"></button>
+        <button data-slide="4" aria-label="Go to slide 5"></button>
+      </div>
+    </section>
+
+    <!-- Mission & Vision enhanced appearance -->
+    <section aria-labelledby="mission-vision" class="values" id="mission-vision">
+      <div class="value-card" id="mission">
+        <h3>Mission</h3>
+        <p>
+          Summit University provides transformative education that empowers learners to excel academically,
+          engage ethically, and contribute meaningfully to their communities. We cultivate curiosity,
+          critical thinking, and practical skills to prepare graduates for a rapidly changing world.
+        </p>
+      </div>
+      <div class="value-card" id="vision">
+        <h3>Vision</h3>
+        <p>
+          To be recognized globally for academic excellence, innovative research, and inclusive opportunities
+          that advance society. Summit University aspires to be a hub where talent meets opportunity and ideas
+          drive positive change.
+        </p>
+      </div>
+    </section>
     `;
+    this.initCarousel();
   }
+
+  initCarousel() {
+    const slidesEl = document.querySelector('.carousel .slides');
+    const slides = document.querySelectorAll('.carousel .slide');
+    const prevBtn = document.getElementById('prev');
+    const nextBtn = document.getElementById('next');
+    const indicators = document.getElementById('indicators');
+    const indicatorButtons = indicators.querySelectorAll('button');
+    let current = 0;
+    const total = slides.length;
+    let interval = null;
+    const AUTO_MS = 5000;
+
+    function goTo(index) {
+      current = (index + total) % total;
+      slidesEl.style.transform = 'translateX(' + (-current * 100) + '%)';
+      indicatorButtons.forEach((btn, i) => btn.classList.toggle('active', i === current));
+    }
+
+    function next() { goTo(current + 1); }
+    function prev() { goTo(current - 1); }
+
+    nextBtn.addEventListener('click', () => { next(); resetAuto(); });
+    prevBtn.addEventListener('click', () => { prev(); resetAuto(); });
+
+    indicatorButtons.forEach(btn =>
+      btn.addEventListener('click', () => { goTo(Number(btn.dataset.slide)); resetAuto(); })
+    );
+
+    function startAuto() { interval = setInterval(next, AUTO_MS); }
+    function resetAuto() { clearInterval(interval); startAuto(); }
+
+    const carousel = document.getElementById('facilities-carousel');
+    carousel.addEventListener('mouseenter', () => clearInterval(interval));
+    carousel.addEventListener('mouseleave', startAuto);
+    carousel.addEventListener('focusin', () => clearInterval(interval));
+    carousel.addEventListener('focusout', startAuto);
+
+    carousel.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowLeft') prev();
+      if (e.key === 'ArrowRight') next();
+    });
+    carousel.setAttribute('tabindex', '0');
+
+    goTo(0);
+    startAuto();
+  }
+  
+
 
   showAbout() {
     this.clear();
@@ -46,14 +144,34 @@ class StudentView {
     `;
   }
 
-    showRegister(handler) {
+  showMessage(id, text, type) {
+    let div = document.getElementById(id);
+    if (!div) {
+      div = document.createElement("div");
+      div.id = id;
+      div.className = "feedback";
+      this.app.prepend(div);
+    }
+    div.className = `feedback ${type}`;
+    div.innerHTML = text; // ✅ allows <br> line breaks
+  }
+
+
+  showRegister(handler) {
   this.clear();
   const form = document.createElement("form");
   form.innerHTML = `
     <h1>Student Registration</h1>
     <input name="name" placeholder="Full Name" required />
     <input name="email" type="email" placeholder="Email" required />
-    <input name="education" placeholder="Educational Background" required />
+    <input name="course" placeholder="Course Taken" required />
+    <input name="year" type="number" placeholder="Year Finished" required />
+    <select name="level" required>
+      <option value="">Select Level</option>
+      <option value="Undergraduate">Undergraduate</option>
+      <option value="Graduate">Graduate</option>
+    </select>
+
     <input name="username" placeholder="Username" required />
     <input id="password" name="password" type="password" placeholder="Password" required />
     <div id="strengthBar" style="height:8px; width:100%; background:#ccc; border-radius:4px; margin-top:4px;"></div>
